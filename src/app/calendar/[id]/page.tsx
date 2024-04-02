@@ -26,7 +26,7 @@ export default function CalendarPage({ params }: CalendarProps) {
             <div className="flex flex-col gap-3">
               <h1 className="text-xl font-bold">1:1 Bruneli</h1>
               <div className="flex items-center gap-2">
-                <Clock color="rgba(26,26,26,0.61)" size={20}></Clock>
+                <Clock className="text-foreground" size={20}></Clock>
                 <span>30 min</span>
               </div>
               <div>
