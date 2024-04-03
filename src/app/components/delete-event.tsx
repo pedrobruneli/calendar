@@ -19,7 +19,7 @@ export const DeleteEvent = ({ onDelete }: DeleteEventProps) => {
       </PopoverTrigger>
       <PopoverContent>
         <div className="flex flex-col gap-2">
-          Are you sure you want to delete this event?
+          Are you sure you want to cancel this event?
           <div className="flex gap-2 justify-end">
             <Button onClick={onDelete}>Yes</Button>
             <PopoverClose asChild>

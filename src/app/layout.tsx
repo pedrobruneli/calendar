@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
+import { EventFilterProvider } from "./components/contexts/event-filter-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,8 +26,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header></Header>
-          {children}
+          <EventFilterProvider>
+            <Header></Header>
+            {children}
+          </EventFilterProvider>
         </ThemeProvider>
       </body>
     </html>
