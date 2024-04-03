@@ -13,25 +13,8 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { EventsFilters } from "./components/events-filters";
-import {
-  EventFilterProvider,
-  useEventFilter,
-} from "./components/contexts/event-filter-context";
-
-export const statusMapping = {
-  upcoming: {
-    label: "Em breve",
-    color: "bg-yellow-400",
-  },
-  done: {
-    label: "Concluído",
-    color: "bg-green-400",
-  },
-  canceled: {
-    label: "Cancelado",
-    color: "bg-red-400",
-  },
-};
+import { useEventFilter } from "./components/contexts/event-filters/event-filter.context";
+import { statusMapping } from "./components/contexts/event-filters/event-filter.types";
 
 type Event = {
   id: number;
