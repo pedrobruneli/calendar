@@ -5,13 +5,9 @@ import React, {
   useContext,
   useState,
 } from "react";
+import { EventFilterContextType } from "./event-filter.types";
 
 // Context for this is not necessary, but it's a good example of how to use React Context
-
-type EventFilterContextType = {
-  filters: string[];
-  setFilters: React.Dispatch<React.SetStateAction<string[]>>;
-};
 
 export const EventFilterContext = createContext<EventFilterContextType>({
   filters: ["upcoming"],

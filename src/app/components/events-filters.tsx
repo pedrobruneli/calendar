@@ -6,8 +6,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Filter } from "lucide-react";
-import { statusMapping } from "../page";
-import { useEventFilter } from "./contexts/event-filter-context";
+import { useEventFilter } from "./contexts/event-filters/event-filter.context";
+import { statusMapping } from "./contexts/event-filters/event-filter.types";
 
 type Status = keyof typeof statusMapping;
 
