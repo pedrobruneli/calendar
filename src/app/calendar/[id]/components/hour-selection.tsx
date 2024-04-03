@@ -1,10 +1,13 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 
-export const HourSelection = () => {
+type HourSelectionProps = {
+  onNext: (hour: string) => void;
+};
+
+export const HourSelection = ({ onNext }: HourSelectionProps) => {
   const hours = [
     "11:00",
     "12:00",
@@ -18,6 +21,7 @@ export const HourSelection = () => {
     "20:00",
   ];
   const [selectedHour, setSelectedHour] = useState<string | null>(null);
+
   return (
     <div className="flex flex-col gap-1 w-full justify-center">
       {hours.map((hour) => (
@@ -30,7 +34,11 @@ export const HourSelection = () => {
             {hour}
           </Button>
           {selectedHour === hour && (
-            <Button key={hour + "arrow"} className="w-3/7">
+            <Button
+              key={hour + "arrow"}
+              className="w-3/7"
+              onClick={() => onNext(hour)}
+            >
               <ArrowRight size={16}></ArrowRight>
             </Button>
           )}

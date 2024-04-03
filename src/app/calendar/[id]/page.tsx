@@ -61,7 +61,11 @@ export default function CalendarPage({ params }: CalendarProps) {
             fromDate={new Date()}
           ></Calendar>
           <ScrollArea className="w-full px-4">
-            <HourSelection></HourSelection>
+            <HourSelection
+              onNext={(hour) => {
+                console.log(hour);
+              }}
+            ></HourSelection>
           </ScrollArea>
         </div>
       </Card>
