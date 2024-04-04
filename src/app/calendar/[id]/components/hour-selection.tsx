@@ -4,10 +4,11 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 
 type HourSelectionProps = {
-  onNext: (hour: string) => void;
+  onNext: (date: Date) => void;
+  date: Date;
 };
 
-export const HourSelection = ({ onNext }: HourSelectionProps) => {
+export const HourSelection = ({ onNext, date }: HourSelectionProps) => {
   const hours = [
     "11:00",
     "12:00",
@@ -37,7 +38,13 @@ export const HourSelection = ({ onNext }: HourSelectionProps) => {
             <Button
               key={hour + "arrow"}
               className="w-3/7"
-              onClick={() => onNext(hour)}
+              onClick={() => {
+                const dateWithHours = new Date(date);
+                const [hour, minute] = selectedHour.split(":");
+                dateWithHours.setHours(parseInt(hour));
+                dateWithHours.setMinutes(parseInt(minute));
+                onNext(dateWithHours);
+              }}
             >
               <ArrowRight size={16}></ArrowRight>
             </Button>
