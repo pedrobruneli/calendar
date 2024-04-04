@@ -8,6 +8,7 @@ import {
 import { Filter } from "lucide-react";
 import { useEventFilter } from "./contexts/event-filters/event-filter.context";
 import { statusMapping } from "./contexts/event-filters/event-filter.types";
+import { cn } from "@/lib/utils";
 
 type Status = keyof typeof statusMapping;
 
@@ -30,24 +31,20 @@ export const EventsFilters = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuCheckboxItem
-            checked={filters.includes("upcoming")}
-            onCheckedChange={(checked) => onCheckedChange(checked, "upcoming")}
-          >
-            Em breve
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            checked={filters.includes("canceled")}
-            onCheckedChange={(checked) => onCheckedChange(checked, "canceled")}
-          >
-            Cancelado
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            checked={filters.includes("done")}
-            onCheckedChange={(checked) => onCheckedChange(checked, "done")}
-          >
-            Concluido
-          </DropdownMenuCheckboxItem>
+          {Object.entries(statusMapping).map(([status, { label, color }]) => (
+            <DropdownMenuCheckboxItem
+              key={status}
+              checked={filters.includes(status as Status)}
+              onCheckedChange={(checked) =>
+                onCheckedChange(checked, status as Status)
+              }
+            >
+              <span
+                className={cn("rounded-full h-2 w-2 inline-block mr-2", color)}
+              ></span>
+              {label}
+            </DropdownMenuCheckboxItem>
+          ))}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

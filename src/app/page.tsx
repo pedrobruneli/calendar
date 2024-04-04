@@ -21,8 +21,7 @@ type Event = {
   customer: string;
   event: string;
   duration: string;
-  date: string;
-  hour: string;
+  date: Date;
   status: keyof typeof statusMapping;
 };
 
@@ -33,8 +32,7 @@ export default function Home() {
       customer: "John Doe",
       event: "Meeting",
       duration: "30 minutes",
-      date: "01/05/2024",
-      hour: "10:00",
+      date: new Date("2024-05-01T00:00:00.000"),
       status: "upcoming",
     },
     {
@@ -42,8 +40,7 @@ export default function Home() {
       customer: "Another guy",
       event: "Meeting",
       duration: "30 minutes",
-      date: "01/05/2024",
-      hour: "11:00",
+      date: new Date("2024-05-01T03:00:00.000"),
       status: "canceled",
     },
     {
@@ -51,9 +48,16 @@ export default function Home() {
       customer: "Jane Doe",
       event: "Meeting",
       duration: "30 minutes",
-      date: "01/05/2024",
-      hour: "12:00",
+      date: new Date("2024-05-01T04:00:00.000"),
       status: "done",
+    },
+    {
+      id: 4,
+      customer: "Michael Jackson",
+      event: "Meeting",
+      duration: "30 minutes",
+      date: new Date("2024-05-01T05:00:00.000"),
+      status: "delayed",
     },
   ]);
 
@@ -65,6 +69,11 @@ export default function Home() {
   const filteredEvents = useMemo(() => {
     return events.filter((event) => filters.includes(event.status));
   }, [events, filters]);
+
+  const hourFormatter = new Intl.DateTimeFormat("pt-BR", {
+    hour: "numeric",
+    minute: "numeric",
+  });
 
   return (
     <main className="flex flex-1 flex-col p-4">
@@ -94,8 +103,12 @@ export default function Home() {
                         <TableCell>{event.customer}</TableCell>
                         <TableCell>{event.event}</TableCell>
                         <TableCell>{event.duration}</TableCell>
-                        <TableCell>{event.date}</TableCell>
-                        <TableCell>{event.hour}</TableCell>
+                        <TableCell>
+                          {new Intl.DateTimeFormat("pt-BR").format(event.date)}
+                        </TableCell>
+                        <TableCell>
+                          {hourFormatter.format(event.date)}
+                        </TableCell>
                         <TableCell>
                           <Badge
                             variant="outline"

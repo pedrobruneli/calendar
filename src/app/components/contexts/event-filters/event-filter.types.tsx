@@ -1,7 +1,7 @@
 export const statusMapping = {
   upcoming: {
-    label: "Em breve",
-    color: "bg-yellow-400",
+    label: "Próximo",
+    color: "bg-blue-400",
   },
   done: {
     label: "Concluído",
@@ -10,6 +10,10 @@ export const statusMapping = {
   canceled: {
     label: "Cancelado",
     color: "bg-red-400",
+  },
+  delayed: {
+    label: "Atrasado",
+    color: "bg-yellow-400",
   },
 };
 
