@@ -136,13 +136,17 @@ export default function SchedulerPage({ params }: SchedulerPage) {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea maxLength={400} {...field} />
+                  <Textarea
+                    className="resize-none"
+                    maxLength={400}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="max-w-32">
+          <Button type="submit" className="max-w-32 mt-5">
             Agendar
           </Button>
         </form>

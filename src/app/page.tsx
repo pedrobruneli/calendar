@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { EventsFilters } from "./components/events-filters";
 import { useEventFilter } from "./components/contexts/event-filters/event-filter.context";
 import { statusMapping } from "./components/contexts/event-filters/event-filter.types";
+import { FinishEvent } from "./components/finish-event";
 
 type Event = {
   id: number;
@@ -63,6 +64,14 @@ export default function Home() {
 
   const handleDelete = (id: number) => () => {
     setEvents((events) => events.filter((event) => event.id !== id));
+  };
+
+  const handleFinish = (id: number) => () => {
+    setEvents((events) =>
+      events.map((event) =>
+        event.id === id ? { ...event, status: "done" } : event
+      )
+    );
   };
 
   const { filters } = useEventFilter();
@@ -121,7 +130,12 @@ export default function Home() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <DeleteEvent onDelete={handleDelete(event.id)} />
+                          <div className="flex gap-2">
+                            <DeleteEvent onDelete={handleDelete(event.id)} />
+                            {event.status === "upcoming" && (
+                              <FinishEvent onFinish={handleFinish(event.id)} />
+                            )}{" "}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
