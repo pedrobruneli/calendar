@@ -2,20 +2,14 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useMaskito } from "@maskito/react";
 import type { MaskitoOptions } from "@maskito/core";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "lucide-react";
+import { useMemo } from "react";
+import { useMaskito } from "@maskito/react";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 type SchedulerPage = {
   params: {
@@ -23,12 +17,6 @@ type SchedulerPage = {
     date: string;
   };
 };
-const scheduleFormSchema = z.object({
-  name: z.string(),
-  email: z.string().email(),
-  phone: z.string(),
-  description: z.string().max(400).optional(),
-});
 
 const phoneMask: MaskitoOptions = {
   mask: [
@@ -50,107 +38,86 @@ const phoneMask: MaskitoOptions = {
   ],
 };
 
+const scheduleFormSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  phone: z.string(),
+  observations: z.string().optional(),
+});
+
 export default function SchedulerPage({ params }: SchedulerPage) {
-  const date = new Date(decodeURIComponent(params.date));
-  const form = useForm<z.infer<typeof scheduleFormSchema>>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<z.infer<typeof scheduleFormSchema>>({
     resolver: zodResolver(scheduleFormSchema),
   });
-  const phoneRef = useMaskito({ options: phoneMask });
 
-  const onSubmit = (data: z.infer<typeof scheduleFormSchema>) => {
+  const onSubmit = (
+    data: z.infer<typeof scheduleFormSchema>,
+    ev?: React.BaseSyntheticEvent
+  ) => {
+    ev?.preventDefault();
     console.log(data);
   };
 
-  const dateFormatted = date.toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    hour: "numeric",
-    minute: "numeric",
+  const phoneRef = useMaskito({
+    options: phoneMask,
   });
+
+  const dateString = useMemo(() => {
+    const date = new Date(decodeURIComponent(params.date));
+    const dateFormatted = date.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      hour: "numeric",
+      minute: "numeric",
+    });
+    return dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
+  }, [params.date]);
 
   return (
     <div className="flex flex-col gap-3 items-start p-6 min-w-[50%]  h-full">
       <h1 className="text-lg font-bold">Agendamento</h1>
       <div className="flex gap-2">
         <Calendar></Calendar>
-        <h2 className="text-lg font-bold">
-          {dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1)}
-        </h2>
+        <h2 className="text-lg font-bold">{dateString}</h2>
       </div>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-3 w-full"
-        >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-3 w-full"
+      >
+        <div className="flex flex-col space-y-1.5">
+          <Label htmlFor="name">Name</Label>
+          <Input id="name" placeholder="Your name" {...register("name")} />
+        </div>
+        <div className="flex flex-col space-y-1.5">
+          <Label htmlFor="email">E-mail</Label>
+          <Input id="email" placeholder="Your e-mail" {...register("email")} />
+        </div>
+        <div className="flex flex-col space-y-1.5">
+          <Label htmlFor="phone">Phone</Label>
+          <Input
+            id="phone"
+            placeholder="(xx) xxxxx-xxxx"
+            {...register("phone")}
+            ref={phoneRef}
+            onInput={(ev) => {
+              setValue("phone", ev.currentTarget.value);
+            }}
           />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>E-mail</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    {...field}
-                    ref={phoneRef}
-                    onInput={(event) =>
-                      form.setValue("phone", event.currentTarget.value)
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    className="resize-none"
-                    maxLength={400}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" className="max-w-32 mt-5">
-            Agendar
-          </Button>
-        </form>
-      </Form>
+        </div>
+        <div className="flex flex-col space-y-1.5">
+          <Label htmlFor="observations">Observations</Label>
+          <Textarea id="observations" {...register("observations")} />
+        </div>
+        <Button type="submit" className="max-w-32 mt-5">
+          Agendar
+        </Button>
+      </form>
     </div>
   );
 }
