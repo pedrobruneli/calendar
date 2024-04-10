@@ -39,11 +39,17 @@ const phoneMask: MaskitoOptions = {
 };
 
 const scheduleFormSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, {
+    message: "Name is required",
+  }),
   email: z.string().email(),
-  phone: z.string(),
+  phone: z.string({
+    required_error: "Phone is required",
+  }),
   observations: z.string().optional(),
 });
+
+//TODO: Create reuseable components for the form
 
 export default function SchedulerPage({ params }: SchedulerPage) {
   const {
@@ -91,15 +97,27 @@ export default function SchedulerPage({ params }: SchedulerPage) {
         className="flex flex-col gap-3 w-full"
       >
         <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name" className={errors.name && "text-red-500"}>
+            Name
+          </Label>
           <Input id="name" placeholder="Your name" {...register("name")} />
+          {errors.name && (
+            <small className="text-red-500">{errors.name.message}</small>
+          )}
         </div>
         <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="email">E-mail</Label>
+          <Label htmlFor="email" className={errors.name && "text-red-500"}>
+            E-mail
+          </Label>
           <Input id="email" placeholder="Your e-mail" {...register("email")} />
+          {errors.email && (
+            <small className="text-red-500">{errors.email.message}</small>
+          )}
         </div>
         <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="phone">Phone</Label>
+          <Label htmlFor="phone" className={errors.name && "text-red-500"}>
+            Phone
+          </Label>
           <Input
             id="phone"
             placeholder="(xx) xxxxx-xxxx"
@@ -109,9 +127,17 @@ export default function SchedulerPage({ params }: SchedulerPage) {
               setValue("phone", ev.currentTarget.value);
             }}
           />
+          {errors.phone && (
+            <small className="text-red-500">{errors.phone.message}</small>
+          )}
         </div>
         <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="observations">Observations</Label>
+          <Label
+            htmlFor="observations"
+            className={errors.name && "text-red-500"}
+          >
+            Observations
+          </Label>
           <Textarea id="observations" {...register("observations")} />
         </div>
         <Button type="submit" className="max-w-32 mt-5">
