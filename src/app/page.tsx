@@ -79,7 +79,7 @@ export default function Home() {
     return events.filter((event) => filters.includes(event.status));
   }, [events, filters]);
 
-  const hourFormatter = new Intl.DateTimeFormat("pt-BR", {
+  const hourFormatter = new Intl.DateTimeFormat("en-US", {
     hour: "numeric",
     minute: "numeric",
   });
@@ -113,7 +113,7 @@ export default function Home() {
                         <TableCell>{event.event}</TableCell>
                         <TableCell>{event.duration}</TableCell>
                         <TableCell>
-                          {new Intl.DateTimeFormat("pt-BR").format(event.date)}
+                          {new Intl.DateTimeFormat("en-US").format(event.date)}
                         </TableCell>
                         <TableCell>
                           {hourFormatter.format(event.date)}

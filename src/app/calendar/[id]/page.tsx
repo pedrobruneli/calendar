@@ -16,7 +16,7 @@ export default function CalendarPage({ params }: CalendarProps) {
   const router = useRouter();
   return (
     <div className="flex flex-col gap-3 items-start p-6 w-full h-full">
-      <h1 className="text-lg font-bold">Selecione uma data</h1>
+      <h1 className="text-lg font-bold">Select a date</h1>
       <Calendar
         mode="single"
         selected={date}
