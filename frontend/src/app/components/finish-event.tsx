@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, Trash } from "lucide-react";
+import { Check } from "lucide-react";
 
 type FinishEventProps = {
   onFinish: () => void;

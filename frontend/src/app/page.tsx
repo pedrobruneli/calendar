@@ -9,13 +9,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DeleteEvent } from "./components/delete-event";
-import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { EventsFilters } from "./components/events-filters";
 import { useEventFilter } from "./components/contexts/event-filters/event-filter.context";
 import { statusMapping } from "./components/contexts/event-filters/event-filter.types";
 import { FinishEvent } from "./components/finish-event";
+import { useQuery } from "@tanstack/react-query";
 
 type Event = {
   id: number;
@@ -27,57 +27,28 @@ type Event = {
 };
 
 export default function Home() {
-  const [events, setEvents] = useState<Event[]>([
-    {
-      id: 1,
-      customer: "John Doe",
-      event: "Meeting",
-      duration: "30 minutes",
-      date: new Date("2024-05-01T00:00:00.000"),
-      status: "upcoming",
-    },
-    {
-      id: 2,
-      customer: "Another guy",
-      event: "Meeting",
-      duration: "30 minutes",
-      date: new Date("2024-05-01T03:00:00.000"),
-      status: "canceled",
-    },
-    {
-      id: 3,
-      customer: "Jane Doe",
-      event: "Meeting",
-      duration: "30 minutes",
-      date: new Date("2024-05-01T04:00:00.000"),
-      status: "done",
-    },
-    {
-      id: 4,
-      customer: "Michael Jackson",
-      event: "Meeting",
-      duration: "30 minutes",
-      date: new Date("2024-05-01T05:00:00.000"),
-      status: "delayed",
-    },
-  ]);
+  const { data: events } = useQuery({
+    queryKey: ["events"],
+    queryFn: (): Promise<Event[]> =>
+      fetch("/api/events").then((res) => res.json()),
+  });
 
   const handleDelete = (id: number) => () => {
-    setEvents((events) => events.filter((event) => event.id !== id));
+    /*  setEvents((events) => events.filter((event) => event.id !== id)); */
   };
 
   const handleFinish = (id: number) => () => {
-    setEvents((events) =>
+    /*  setEvents((events) =>
       events.map((event) =>
         event.id === id ? { ...event, status: "done" } : event
       )
-    );
+    ); */
   };
 
   const { filters } = useEventFilter();
-  const filteredEvents = useMemo(() => {
+  /*   const filteredEvents = useMemo(() => {
     return events.filter((event) => filters.includes(event.status));
-  }, [events, filters]);
+  }, [events, filters]); */
 
   const hourFormatter = new Intl.DateTimeFormat("en-US", {
     hour: "numeric",
@@ -93,7 +64,7 @@ export default function Home() {
         <CardContent>
           <div className="flex flex-col gap-2">
             <EventsFilters />
-            {filteredEvents.length > 0 ? (
+            {events && events.length > 0 ? (
               <div className="flex flex-col gap-2">
                 <Table>
                   <TableHeader>
@@ -107,7 +78,7 @@ export default function Home() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredEvents.map((event) => (
+                    {events.map((event) => (
                       <TableRow key={event.id}>
                         <TableCell>{event.customer}</TableCell>
                         <TableCell>{event.event}</TableCell>

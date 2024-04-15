@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { HourSelection } from "./components/hour-selection";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 type CalendarProps = {
   params: {
@@ -14,6 +15,16 @@ type CalendarProps = {
 export default function CalendarPage({ params }: CalendarProps) {
   const [date, setDate] = useState<Date | undefined>();
   const router = useRouter();
+  useQuery({
+    queryKey: ["user", params.id],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${params.id}`);
+      if (!response.ok) {
+        router.push("/404");
+      }
+      return await response.json();
+    },
+  });
   return (
     <div className="flex flex-col gap-3 items-start p-6 w-full h-full">
       <h1 className="text-lg font-bold">Select a date</h1>
