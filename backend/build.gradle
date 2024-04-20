@@ -1,6 +1,6 @@
 buildscript {
 	dependencies {
-		classpath 'com.h2database:h2:2.2.224'
+		classpath 'org.flywaydb:flyway-database-postgresql:10.1.0'
 	}
 }
 
@@ -8,7 +8,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.4'
 	id 'io.spring.dependency-management' version '1.1.4'
-	id "org.flywaydb.flyway" version "10.0.0"
+	id "org.flywaydb.flyway" version "10.1.0"
 }
 
 group = 'com.bruneli'
@@ -33,6 +33,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation:3.2.4'
+	implementation "org.flywaydb:flyway-core:10.1.0"
+	implementation "org.flywaydb:flyway-database-postgresql:10.1.0"
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
@@ -48,5 +50,6 @@ tasks.named('test') {
 flyway {
 	url = 'jdbc:postgresql://localhost:5432/calendar'
 	user = 'admin'
-	password = 'admin'
+	password = 'root'
+	locations = ['filesystem:src/main/resources/db/migration']
 }

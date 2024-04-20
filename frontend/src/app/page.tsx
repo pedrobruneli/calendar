@@ -16,21 +16,47 @@ import { useEventFilter } from "./components/contexts/event-filters/event-filter
 import { statusMapping } from "./components/contexts/event-filters/event-filter.types";
 import { FinishEvent } from "./components/finish-event";
 import { useQuery } from "@tanstack/react-query";
+import { API_URL } from "@/lib/constants";
+import ms from "ms";
 
-type Event = {
+type Schedule = {
   id: number;
-  customer: string;
-  event: string;
-  duration: string;
-  date: Date;
+  name: string;
+  email: string;
+  phone: string;
+  observations: string;
+  startDate: string;
+  endDate: string;
   status: keyof typeof statusMapping;
 };
 
+type ScheduleTable = Schedule & {
+  startDate: Date;
+  endDate: Date;
+  duration: string;
+  date: string;
+};
+
 export default function Home() {
+  const getEvents = async (): Promise<ScheduleTable[]> => {
+    const response = await fetch(`${API_URL}/schedule`);
+    const data = await response.json();
+    return data.map((event: Schedule) => {
+      const startDate = new Date(event.startDate);
+      const endDate = new Date(event.endDate);
+      return {
+        ...event,
+        startDate,
+        endDate,
+        duration: ms(endDate.getTime() - startDate.getTime()),
+        date: new Intl.DateTimeFormat("en-US").format(startDate),
+      };
+    });
+  };
+
   const { data: events } = useQuery({
     queryKey: ["events"],
-    queryFn: (): Promise<Event[]> =>
-      fetch("/api/events").then((res) => res.json()),
+    queryFn: (): Promise<ScheduleTable[]> => getEvents(),
   });
 
   const handleDelete = (id: number) => () => {
@@ -70,7 +96,6 @@ export default function Home() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Customer</TableHead>
-                      <TableHead>Event</TableHead>
                       <TableHead>Duration</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Hour</TableHead>
@@ -80,14 +105,11 @@ export default function Home() {
                   <TableBody>
                     {events.map((event) => (
                       <TableRow key={event.id}>
-                        <TableCell>{event.customer}</TableCell>
-                        <TableCell>{event.event}</TableCell>
+                        <TableCell>{event.name}</TableCell>
                         <TableCell>{event.duration}</TableCell>
+                        <TableCell>{event.date}</TableCell>
                         <TableCell>
-                          {new Intl.DateTimeFormat("en-US").format(event.date)}
-                        </TableCell>
-                        <TableCell>
-                          {hourFormatter.format(event.date)}
+                          {hourFormatter.format(event.startDate)}
                         </TableCell>
                         <TableCell>
                           <Badge

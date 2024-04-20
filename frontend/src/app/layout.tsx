@@ -5,6 +5,7 @@ import { Header } from "@/components/header";
 import { EventFilterProvider } from "./components/contexts/event-filters/event-filter.context";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
             <EventFilterProvider>
               <Header></Header>
               {children}
+              <Toaster />
             </EventFilterProvider>
           </ThemeProvider>
         </QueryProvider>
