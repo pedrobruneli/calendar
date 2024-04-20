@@ -1,10 +1,12 @@
 package com.bruneli.backend.exceptions;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -42,5 +45,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         body.put("statusCode", status.value());
         body.put("message", "Invalid input provided");
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpException.class)
+    public void handleCustomException(HttpServletResponse res, HttpException ex) throws IOException {
+        res.sendError(ex.getHttpStatus().value(), ex.getMessage());
     }
 }
