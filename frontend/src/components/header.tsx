@@ -30,7 +30,7 @@ export const Header = () => {
           Dashboard
         </Link>
         <Link
-          href="/calendar/example"
+          href="/calendar/bruneli"
           className="text-muted-foreground transition-colors hover:text-foreground text-nowrap"
         >
           Calendar Example
@@ -59,7 +59,7 @@ export const Header = () => {
               Dashboard
             </Link>
             <Link
-              href="/calendar/example"
+              href="/calendar/bruneli"
               className="text-muted-foreground hover:text-foreground"
             >
               Calendar Example

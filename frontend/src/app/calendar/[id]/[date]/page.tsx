@@ -5,11 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import type { MaskitoOptions } from "@maskito/core";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
-import { useMemo } from "react";
+import { Calendar, Loader2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useMaskito } from "@maskito/react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { API_URL } from "@/lib/constants";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 type SchedulerPage = {
   params: {
@@ -60,22 +63,17 @@ export default function SchedulerPage({ params }: SchedulerPage) {
   } = useForm<z.infer<typeof scheduleFormSchema>>({
     resolver: zodResolver(scheduleFormSchema),
   });
-
-  const onSubmit = (
-    data: z.infer<typeof scheduleFormSchema>,
-    ev?: React.BaseSyntheticEvent
-  ) => {
-    ev?.preventDefault();
-    console.log(data);
-  };
-
+  const { toast } = useToast();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const startDate = useMemo(() => {
+    return new Date(decodeURIComponent(params.date));
+  }, [params.date]);
   const phoneRef = useMaskito({
     options: phoneMask,
   });
-
   const dateString = useMemo(() => {
-    const date = new Date(decodeURIComponent(params.date));
-    const dateFormatted = date.toLocaleDateString("pt-BR", {
+    const dateFormatted = startDate.toLocaleDateString("pt-BR", {
       weekday: "long",
       day: "numeric",
       month: "long",
@@ -83,7 +81,45 @@ export default function SchedulerPage({ params }: SchedulerPage) {
       minute: "numeric",
     });
     return dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
-  }, [params.date]);
+  }, [startDate]);
+
+  const getSchedules = async (data: z.infer<typeof scheduleFormSchema>) => {
+    return await fetch(`${API_URL}/schedule`, {
+      method: "POST",
+      body: JSON.stringify({
+        ...data,
+        startDate: startDate.toISOString(),
+        endDate: new Date(startDate.getTime() + 30 * 60000).toISOString(),
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  };
+
+  const onSubmit = async (
+    data: z.infer<typeof scheduleFormSchema>,
+    ev?: React.BaseSyntheticEvent
+  ) => {
+    ev?.preventDefault();
+    setIsLoading(true);
+    const response = await getSchedules(data);
+    if (!response.ok) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: "There was a problem with your request.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(false);
+    router.push("/");
+    toast({
+      title: "Success!",
+      description: "Your event has been scheduled.",
+    });
+  };
 
   return (
     <div className="flex flex-col gap-3 items-start p-6 min-w-[50%]  h-full">
@@ -140,8 +176,8 @@ export default function SchedulerPage({ params }: SchedulerPage) {
           </Label>
           <Textarea id="observations" {...register("observations")} />
         </div>
-        <Button type="submit" className="max-w-32 mt-5">
-          Agendar
+        <Button disabled={isLoading} type="submit" className="max-w-32 mt-5">
+          {isLoading ? <Loader2 className="animate-spin" /> : "Agendar"}
         </Button>
       </form>
     </div>
