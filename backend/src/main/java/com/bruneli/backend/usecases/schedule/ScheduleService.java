@@ -25,6 +25,18 @@ public class ScheduleService {
         return scheduleRepository.save(scheduleEntity);
     }
 
+    public void delete(String id) {
+        scheduleRepository.deleteById(id);
+    }
+
+    public GetScheduleDTO complete(String id) {
+        ScheduleEntity scheduleEntity = scheduleRepository.findById(id)
+                .orElseThrow(() -> new HttpException(HttpStatus.NOT_FOUND, "Schedule not found"));
+        scheduleEntity.setStatus(ScheduleStatus.DONE);
+        scheduleRepository.save(scheduleEntity);
+        return buildGetScheduleDTO(scheduleEntity);
+    }
+
     private ScheduleEntity buildScheduleEntity(CreateScheduleDTO createScheduleDTO) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .withZone(ZoneId.of("UTC"));

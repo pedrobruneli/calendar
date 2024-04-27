@@ -6,6 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 public class GetScheduleDTO{
+    private String id;
     private String name;
     private String email;
     private String phone;
