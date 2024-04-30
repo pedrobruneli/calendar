@@ -18,9 +18,11 @@ import { FinishEvent } from "./components/finish-event";
 import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "@/lib/constants";
 import ms from "ms";
+import { useToast } from "@/components/ui/use-toast";
+import { TableBodySkeleton } from "@/components/table-body-skeleton";
 
 type Schedule = {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone: string;
@@ -38,6 +40,8 @@ type ScheduleTable = Schedule & {
 };
 
 export default function Home() {
+  const { toast } = useToast();
+
   const getEvents = async (): Promise<ScheduleTable[]> => {
     const response = await fetch(`${API_URL}/schedule`);
     const data = await response.json();
@@ -54,21 +58,42 @@ export default function Home() {
     });
   };
 
-  const { data: events } = useQuery({
+  const {
+    data: events,
+    refetch,
+    isLoading,
+  } = useQuery({
     queryKey: ["events"],
     queryFn: (): Promise<ScheduleTable[]> => getEvents(),
   });
 
-  const handleDelete = (id: number) => () => {
-    /*  setEvents((events) => events.filter((event) => event.id !== id)); */
+  const handleDelete = (id: string) => async () => {
+    await fetch(`${API_URL}/schedule/${id}`, {
+      method: "DELETE",
+    }).catch(() => {
+      toast({
+        title: "Error",
+        description: "Error deleting event",
+        variant: "destructive",
+      });
+    });
+    refetch();
   };
 
-  const handleFinish = (id: number) => () => {
-    /*  setEvents((events) =>
-      events.map((event) =>
-        event.id === id ? { ...event, status: "done" } : event
-      )
-    ); */
+  const handleFinish = (id: string) => async () => {
+    await fetch(`${API_URL}/schedule/${id}/complete`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).catch(() => {
+      toast({
+        title: "Error",
+        description: "Error finishing event",
+        variant: "destructive",
+      });
+    });
+    refetch();
   };
 
   const { filters } = useEventFilter();
@@ -90,8 +115,8 @@ export default function Home() {
         <CardContent>
           <div className="flex flex-col gap-2">
             <EventsFilters />
-            {events && events.length > 0 ? (
-              <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
+              {((events && events.length > 0) || isLoading) && (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -102,40 +127,46 @@ export default function Home() {
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    {events.map((event) => (
-                      <TableRow key={event.id}>
-                        <TableCell>{event.name}</TableCell>
-                        <TableCell>{event.duration}</TableCell>
-                        <TableCell>{event.date}</TableCell>
-                        <TableCell>
-                          {hourFormatter.format(event.startDate)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              statusMapping[event.status].color,
-                              "hover:bg-opacity-80 text-primary-foreground"
-                            )}
-                          >
-                            {statusMapping[event.status].label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <DeleteEvent onDelete={handleDelete(event.id)} />
-                            {event.status === "upcoming" && (
-                              <FinishEvent onFinish={handleFinish(event.id)} />
-                            )}{" "}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
+                  {isLoading && <TableBodySkeleton colLength={5} />}
+                  {!isLoading && events && (
+                    <TableBody>
+                      {events.map((event) => (
+                        <TableRow key={event.id}>
+                          <TableCell>{event.name}</TableCell>
+                          <TableCell>{event.duration}</TableCell>
+                          <TableCell>{event.date}</TableCell>
+                          <TableCell>
+                            {hourFormatter.format(event.startDate)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                statusMapping[event.status].color,
+                                "hover:bg-opacity-80 text-primary-foreground"
+                              )}
+                            >
+                              {statusMapping[event.status].label}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <DeleteEvent onDelete={handleDelete(event.id)} />
+                              {event.status === "upcoming" && (
+                                <FinishEvent
+                                  onFinish={handleFinish(event.id)}
+                                />
+                              )}{" "}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  )}
                 </Table>
-              </div>
-            ) : (
+              )}
+            </div>
+            {events && events.length === 0 && !isLoading && (
               <span>No events to show...</span>
             )}
           </div>
