@@ -27,4 +27,15 @@ public class ScheduleController {
         return ResponseEntity.ok(scheduleService.getSchedules());
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSchedule(@PathVariable String id) {
+        scheduleService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<GetScheduleDTO> completeSchedule(@PathVariable String id) {
+        return ResponseEntity.ok(scheduleService.complete(id));
+    }
+
 }

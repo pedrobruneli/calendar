@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import type { MaskitoOptions } from "@maskito/core";
 import { Button } from "@/components/ui/button";
 import { Calendar, Loader2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useMaskito } from "@maskito/react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -66,12 +66,12 @@ export default function SchedulerPage({ params }: SchedulerPage) {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const startDate = useMemo(() => {
-    return new Date(decodeURIComponent(params.date));
-  }, [params.date]);
   const phoneRef = useMaskito({
     options: phoneMask,
   });
+  const startDate = useMemo(() => {
+    return new Date(decodeURIComponent(params.date));
+  }, [params.date]);
   const dateString = useMemo(() => {
     const dateFormatted = startDate.toLocaleDateString("pt-BR", {
       weekday: "long",
@@ -83,19 +83,22 @@ export default function SchedulerPage({ params }: SchedulerPage) {
     return dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
   }, [startDate]);
 
-  const getSchedules = async (data: z.infer<typeof scheduleFormSchema>) => {
-    return await fetch(`${API_URL}/schedule`, {
-      method: "POST",
-      body: JSON.stringify({
-        ...data,
-        startDate: startDate.toISOString(),
-        endDate: new Date(startDate.getTime() + 30 * 60000).toISOString(),
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  };
+  const getSchedules = useCallback(
+    async (data: z.infer<typeof scheduleFormSchema>) => {
+      return await fetch(`${API_URL}/schedule`, {
+        method: "POST",
+        body: JSON.stringify({
+          ...data,
+          startDate: startDate.toISOString(),
+          endDate: new Date(startDate.getTime() + 30 * 60000).toISOString(),
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    },
+    [startDate]
+  );
 
   const onSubmit = async (
     data: z.infer<typeof scheduleFormSchema>,
