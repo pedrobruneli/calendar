@@ -44,6 +44,9 @@ export default function Home() {
 
   const getEvents = async (): Promise<ScheduleTable[]> => {
     const response = await fetch(`${API_URL}/schedule`);
+    if (!response.ok) {
+      throw new Error("Error fetching events");
+    }
     const data = await response.json();
     return data.map((event: Schedule) => {
       const startDate = new Date(event.startDate);
@@ -62,9 +65,21 @@ export default function Home() {
     data: events,
     refetch,
     isLoading,
+    error,
   } = useQuery({
     queryKey: ["events"],
     queryFn: (): Promise<ScheduleTable[]> => getEvents(),
+    retry: (failureCount, error) => {
+      if (failureCount === 3) {
+        toast({
+          title: "Error",
+          description: "Error fetching events",
+          variant: "destructive",
+        });
+        return false;
+      }
+      return true;
+    },
   });
 
   const handleDelete = (id: string) => async () => {
@@ -116,7 +131,7 @@ export default function Home() {
           <div className="flex flex-col gap-2">
             <EventsFilters />
             <div className="flex flex-col gap-2">
-              {((events && events.length > 0) || isLoading) && (
+              {((events && events.length > 0) || isLoading) && !error && (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -166,9 +181,8 @@ export default function Home() {
                 </Table>
               )}
             </div>
-            {events && events.length === 0 && !isLoading && (
-              <span>No events to show...</span>
-            )}
+            {(events && events.length === 0 && !isLoading) ||
+              (error && <span>No events to show...</span>)}
           </div>
         </CardContent>
       </Card>

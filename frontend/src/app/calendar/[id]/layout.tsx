@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { CalendarSkeleton } from "./components/calendar-skeleton";
 
 type CalendarLayoutProps = {
@@ -23,9 +23,20 @@ export default function CalendarLayout({
   const [showMore, setShowMore] = useState(false);
   const router = useRouter();
 
+  const getUser = useCallback(async () => {
+    const response = await fetch(`${API_URL}/users/${params.id}`);
+    if (!response.ok && response.status !== 404) {
+      throw new Error("Failed to fetch user");
+    }
+    if (response.status === 404) {
+      throw new Error("User not found");
+    }
+    return await response.json();
+  }, [params.id]);
+
   const { error, isLoading } = useQuery({
     queryKey: ["user", params.id],
-    queryFn: getUser(params.id),
+    queryFn: getUser,
     retry: (failureCount, error) => error.message !== "User not found",
   });
 
@@ -80,14 +91,3 @@ export default function CalendarLayout({
     </main>
   );
 }
-
-export const getUser = (userId: string) => async () => {
-  const response = await fetch(`${API_URL}/users/${userId}`);
-  if (!response.ok && response.status !== 404) {
-    throw new Error("Failed to fetch user");
-  }
-  if (response.status === 404) {
-    throw new Error("User not found");
-  }
-  return await response.json();
-};
